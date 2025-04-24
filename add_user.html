@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New User - PLP GSO</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <?php include 'header.php'; ?>
+    
+    <div class="container">
+        <div class="page-header">
+            <h2>Add New User</h2>
+            <a href="users.php" class="btn btn-secondary">Back to Users</a>
+        </div>
+        
+        <?php if (isset($_SESSION['error'])): ?>
+            <div class="error-message"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
+        <?php endif; ?>
+        
+        <div class="card">
+            <div class="card-body">
+                <form method="post" action="add_user.php" class="auth-form">
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label for="first_name">First Name*</label>
+                            <input type="text" id="first_name" name="first_name" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="last_name">Last Name*</label>
+                            <input type="text" id="last_name" name="last_name" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email Address*</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Password*</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="confirm_password">Confirm Password*</label>
+                        <input type="password" id="confirm_password" name="confirm_password" required>
+                    </div>
+                    
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label for="role">Role*</label>
+                            <select id="role" name="role" required>
+                                <option value="">Select Role</option>
+                                <option value="student">Student</option>
+                                <option value="faculty">Faculty</option>
+                                <option value="staff">Staff</option>
+                                <option value="admin">Admin</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="department">Department/Course*</label>
+                            <input type="text" id="department" name="department" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="text" id="phone" name="phone">
+                    </div>
+                    
+                    <div class="form-buttons">
+                        <button type="submit" name="add_user" class="btn btn-primary">Add User</button>
+                        <a href="users.php" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <?php include 'footer.php'; ?>
+</body>
+</html>

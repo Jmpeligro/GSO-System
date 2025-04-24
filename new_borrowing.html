@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Borrowing - University GSO</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <?php include 'header.php'; ?>
+    
+    <div class="container">
+        <div class="page-header">
+            <h2>Create New Borrowing</h2>
+            <div class="action-buttons">
+                <a href="borrowings.php" class="btn btn-secondary">Back to Borrowings</a>
+            </div>
+        </div>
+        
+        <?php if (isset($errors) && !empty($errors)): ?>
+            <div class="error-message">
+                <ul>
+                    <?php foreach ($errors as $error): ?>
+                        <li><?php echo $error; ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+        <?php endif; ?>
+        
+        <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" class="borrowing-form">
+            <div class="form-group">
+                <label for="equipment_id">Equipment</label>
+                <select id="equipment_id" name="equipment_id" required>
+                    <option value="">Select Equipment</option>
+                    <?php while ($equipment = $result_equipment->fetch_assoc()): ?>
+                        <option value="<?php echo $equipment['equipment_id']; ?>">
+                            <?php echo $equipment['name'] . ' (' . $equipment['equipment_code'] . ')'; ?>
+                        </option>
+                    <?php endwhile; ?>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="user_id">Borrower</label>
+                <select id="user_id" name="user_id" required>
+                    <option value="">Select User</option>
+                    <?php while ($user = $result_users->fetch_assoc()): ?>
+                        <option value="<?php echo $user['user_id']; ?>">
+                            <?php echo $user['first_name'] . ' ' . $user['last_name'] . ' (' . $user['email'] . ')'; ?>
+                        </option>
+                    <?php endwhile; ?>
+                </select>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group half">
+                    <label for="borrow_date">Borrow Date</label>
+                    <input type="datetime-local" id="borrow_date" name="borrow_date" required>
+                </div>
+                
+                <div class="form-group half">
+                    <label for="due_date">Due Date</label>
+                    <input type="datetime-local" id="due_date" name="due_date" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="notes">Notes/Purpose</label>
+                <textarea id="notes" name="notes" rows="3" placeholder="Why is this equipment being borrowed?"></textarea>
+            </div>
+            
+            <div class="form-buttons">
+                <button type="submit" class="btn btn-primary">Create Borrowing</button>
+                <a href="borrowings.php" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+    
+    <?php include 'footer.php'; ?>
+
+    <script src="borrowings.js"></script>
+</body>
+</html> 

@@ -1,0 +1,93 @@
+/* Login and Register Styling */
+
+body {
+    background: linear-gradient(135deg, #f5f7fc 0%, #e9ecef 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 0;
+}
+
+.card {
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+}
+
+.card-header {
+    background-color: #0d6efd;
+    color: white;
+    text-align: center;
+    padding: 2rem 1.5rem;
+    border-bottom: none;
+}
+
+.btn-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    padding: 0.6rem 1rem;
+}
+
+.btn-primary:hover {
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
+}
+
+.form-text {
+    font-size: 0.8rem;
+}
+
+.form-floating > label {
+    padding-left: 1rem;
+}
+
+/* Login page specific */
+.login-container {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+/* Register page specific */
+.register-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+body {
+    background: linear-gradient(135deg, #f5f7fc 0%, #e9ecef 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 0;
+}
+.card {
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+}
+.card-header {
+    background-color: #0d6efd;
+    color: white;
+    text-align: center;
+    padding: 2rem 1.5rem;
+    border-bottom: none;
+}
+.btn-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    padding: 0.6rem 1rem;
+}
+.btn-primary:hover {
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
+}
+.form-text {
+    font-size: 0.8rem;
+}
+.form-floating > label {
+    padding-left: 1rem;
+}

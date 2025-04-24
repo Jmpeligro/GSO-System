@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pending Borrowing Requests - University GSO</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <?php include 'header.php'; ?>
+    
+    <div class="container">
+        <div class="page-header">
+            <h2>Pending Borrowing Requests</h2>
+        </div>
+        
+        <?php if (isset($_SESSION['success'])): ?>
+            <div class="success-message"><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></div>
+        <?php endif; ?>
+        
+        <?php if (isset($_SESSION['error'])): ?>
+            <div class="error-message"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
+        <?php endif; ?>
+        
+        <div class="requests-list">
+            <?php if ($result && $result->num_rows > 0): ?>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Equipment</th>
+                            <th>Code</th>
+                            <th>Borrower</th>
+                            <th>Borrow Date</th>
+                            <th>Due Date</th>
+                            <th>Purpose</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php while ($row = $result->fetch_assoc()): ?>
+                        <tr>
+                            <td><?php echo $row['borrowing_id']; ?></td>
+                            <td><?php echo $row['equipment_name']; ?></td>
+                            <td><?php echo $row['equipment_code']; ?></td>
+                            <td><?php echo $row['first_name'] . ' ' . $row['last_name']; ?></td>
+                            <td><?php echo date('M d, Y', strtotime($row['borrow_date'])); ?></td>
+                            <td><?php echo date('M d, Y', strtotime($row['due_date'])); ?></td>
+                            <td><?php echo $row['notes']; ?></td>
+                            <td class="actions">
+                                <form method="post" action="pending_request.php" style="display:inline-block;">
+                                    <input type="hidden" name="borrowing_id" value="<?php echo $row['borrowing_id']; ?>">
+                                    <input type="hidden" name="equipment_id" value="<?php echo $row['equipment_id']; ?>">
+                                    <button type="submit" name="approve_request" class="btn btn-small btn-primary">Approve</button>
+                                </form>
+                                
+                                <button class="btn btn-small btn-danger deny-button" data-form-id="<?php echo $row['borrowing_id']; ?>">
+                                    Deny
+                                </button>
+                                
+                                <div id="deny-form-<?php echo $row['borrowing_id']; ?>" class="deny-form" style="display:none;">
+                                    <form method="post" action="pending_request.php">
+                                        <input type="hidden" name="borrowing_id" value="<?php echo $row['borrowing_id']; ?>">
+                                        <textarea name="denial_reason" placeholder="Reason for denial" required></textarea>
+                                        <button type="submit" name="deny_request" class="btn btn-small btn-danger">Confirm Denial</button>
+                                    </form>
+                                </div>
+                                
+                                <a href="view_borrowing.php?id=<?php echo $row['borrowing_id']; ?>" class="btn btn-small">View</a>
+                            </td>
+                        </tr>
+                        <?php endwhile; ?>
+                    </tbody>
+                </table>
+            <?php else: ?>
+                <div class="no-results">
+                    <p>No pending borrowing requests at this time.</p>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+    
+    <?php include 'footer.php'; ?>
+    
+    <script src="borrowings.js"></script>
+</body>
+</html>

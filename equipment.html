@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Equipment Management - University GSO</title>
+    <link rel="stylesheet" href="styles.css">
+    <script>
+        function confirmDelete(id, name) {
+            return confirm('Are you sure you want to delete "' + name + '"? This action cannot be undone.');
+        }
+        function validateStatusChange(selectElement) {
+            if (selectElement.value === "") {
+                return false; 
+            }
+            return true; 
+        }
+    </script>
+</head>
+<body>
+    <?php include 'header.php'; ?>
+    
+    <div class="container">
+        <div class="page-header">
+            <h2>Equipment Management</h2>
+            <?php if (isAdmin()): ?>
+            <a href="equipment_management.php" class="btn btn-primary">Add New Equipment</a>
+            <?php endif; ?>
+        </div>
+        
+        <?php if (isset($_SESSION['success'])): ?>
+        <div class="alert alert-success">
+            <?php 
+                echo $_SESSION['success']; 
+                unset($_SESSION['success']);
+            ?>
+        </div>
+        <?php endif; ?>
+        
+        <?php if (isset($_SESSION['error'])): ?>
+        <div class="alert alert-danger">
+            <?php 
+                echo $_SESSION['error']; 
+                unset($_SESSION['error']);
+            ?>
+        </div>
+        <?php endif; ?>
+        
+        <div class="filter-section">
+            <form method="get" action="equipment.php" class="filter-form">
+                <div class="form-group">
+                    <label for="status">Status</label>
+                    <select id="status" name="status">
+                        <option value="">All Statuses</option>
+                        <option value="available" <?php echo $status_filter == 'available' ? 'selected' : ''; ?>>Available</option>
+                        <option value="borrowed" <?php echo $status_filter == 'borrowed' ? 'selected' : ''; ?>>Borrowed</option>
+                        <option value="maintenance" <?php echo $status_filter == 'maintenance' ? 'selected' : ''; ?>>Maintenance</option>
+                        <option value="retired" <?php echo $status_filter == 'retired' ? 'selected' : ''; ?>>Retired</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <select id="category" name="category">
+                        <option value="0">All Categories</option>
+                        <?php 
+                        // Reset the result pointer
+                        $categories_result->data_seek(0);
+                        while ($category = $categories_result->fetch_assoc()): 
+                        ?>
+                        <option value="<?php echo $category['category_id']; ?>" <?php echo $category_filter == $category['category_id'] ? 'selected' : ''; ?>>
+                            <?php echo $category['name']; ?>
+                        </option>
+                        <?php endwhile; ?>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="search">Search</label>
+                    <input type="text" id="search" name="search" value="<?php echo htmlspecialchars($search_query); ?>" placeholder="Search equipment...">
+                </div>
+                
+                <button type="submit" class="btn">Apply Filters</button>
+                <a href="equipment.php" class="btn btn-secondary">Reset</a>
+            </form>
+        </div>
+        
+        <div class="equipment-list">
+            <?php if ($result && $result->num_rows > 0): ?>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Name</th>
+                            <th>Category</th>
+                            <th>Status</th>
+                            <th>Condition</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php while ($row = $result->fetch_assoc()): ?>
+                        <tr>
+                            <td><?php echo htmlspecialchars($row['equipment_code']); ?></td>
+                            <td><?php echo htmlspecialchars($row['name']); ?></td>
+                            <td><?php echo htmlspecialchars($row['category_name']); ?></td>
+                            <td><span class="status-badge status-<?php echo $row['status']; ?>"><?php echo ucfirst($row['status']); ?></span></td>
+                            <td><?php echo ucfirst($row['condition_status']); ?></td>
+                            <td class="actions">
+                                <a href="view_equipment.php?id=<?php echo $row['equipment_id']; ?>" class="btn btn-small">View</a>
+                                
+                                <?php if (isAdmin()): ?>
+                                    <!-- Quick status change dropdown -->
+                                    <?php if ($row['status'] != 'borrowed'): ?>
+                                    <form method="post" action="equipment.php" style="display:inline-block; margin-right: 5px;" onsubmit="return validateStatusChange(this.new_status)">
+                                        <input type="hidden" name="equipment_id" value="<?php echo $row['equipment_id']; ?>">
+                                        <select name="new_status" class="status-select" style="padding: 4px; border-radius: 3px;">
+                                            <option value="">Change Status</option>
+                                            <option value="available" <?php echo $row['status'] == 'available' ? 'disabled' : ''; ?>>Available</option>
+                                            <option value="maintenance" <?php echo $row['status'] == 'maintenance' ? 'disabled' : ''; ?>>Maintenance</option>
+                                            <option value="retired" <?php echo $row['status'] == 'retired' ? 'disabled' : ''; ?>>Retired</option>
+                                        </select>
+                                        <input type="hidden" name="update_status" value="1">
+                                        <button type="submit" class="btn btn-small">Update</button>
+                                    </form>
+                                    <?php endif; ?>
+                                    
+                                    <a href="edit_equipment.php?id=<?php echo $row['equipment_id']; ?>" class="btn btn-small btn-secondary">Edit</a>
+                                    
+                                    <!-- Delete form -->
+                                    <?php if ($row['status'] != 'borrowed'): ?>
+                                    <form method="post" action="equipment.php" style="display:inline-block;">
+                                        <input type="hidden" name="equipment_id" value="<?php echo $row['equipment_id']; ?>">
+                                        <input type="hidden" name="delete_equipment" value="1">
+                                        <button type="submit" class="btn btn-small btn-danger" 
+                                                onclick="return confirm('Are you sure you want to delete this equipment? This action cannot be undone.');">
+                                            Delete
+                                        </button>
+                                    </form>
+                                    <?php endif; ?>
+                                <?php endif; ?>
+                                
+                                <?php if ($row['status'] == 'available'): ?>
+                                <a href="borrow_equipment.php?id=<?php echo $row['equipment_id']; ?>" class="btn btn-small btn-primary">Borrow</a>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                        <?php endwhile; ?>
+                    </tbody>
+                </table>
+            <?php else: ?>
+                <div class="no-results">
+                    <p>No equipment found with the current filters.</p>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+    
+    <?php include 'footer.php'; ?>
+</body>
+</html>

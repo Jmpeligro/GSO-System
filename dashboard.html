@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - PLP GSO Management</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+</head>
+<body>
+    <?php include 'header.php'; ?>
+    
+    <div class="container">
+        <h2>Dashboard</h2>
+        
+        <div class="stats-container">
+            <div class="stat-box">
+                <h3>Available Equipment</h3>
+                <div class="stat-number"><?php echo $available_count; ?></div>
+                <a href="equipment.php?status=available" class="stat-link">View all</a>
+            </div>
+            
+            <div class="stat-box">
+                <h3>Currently Borrowed</h3>
+                <div class="stat-number"><?php echo $borrowed_count; ?></div>
+                <a href="equipment.php?status=borrowed" class="stat-link">View all</a>
+            </div>
+            
+            <div class="stat-box">
+                <h3>Under Maintenance</h3>
+                <div class="stat-number"><?php echo $maintenance_count; ?></div>
+                <a href="equipment.php?status=maintenance" class="stat-link">View all</a>
+            </div>
+            
+            <div class="stat-box">
+                <h3>Equipment Categories</h3>
+                <div class="stat-number"><?php echo $categories_count; ?></div>
+                <a href="template/categories.php" class="stat-link">View all</a>
+            </div>
+        </div>
+        
+        <div class="charts-container">
+            <div class="chart-box">
+                <h3>Equipment Status</h3>
+                <canvas id="equipmentStatusChart" 
+                    data-available="<?php echo $available_count; ?>"
+                    data-borrowed="<?php echo $borrowed_count; ?>"
+                    data-maintenance="<?php echo $maintenance_count; ?>">
+                </canvas>
+            </div>
+        </div>
+        
+        <div class="recent-section">
+            <h3>Recent Borrowings</h3>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Equipment</th>
+                        <th>Borrower</th>
+                        <th>Borrow Date</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php while ($row = $result_recent->fetch_assoc()): ?>
+                    <tr>
+                        <td><?php echo $row['borrowing_id']; ?></td>
+                        <td><?php echo $row['equipment_name']; ?></td>
+                        <td><?php echo $row['first_name'] . ' ' . $row['last_name']; ?></td>
+                        <td><?php echo date('M d, Y', strtotime($row['borrow_date'])); ?></td>
+                        <td><?php echo date('M d, Y', strtotime($row['due_date'])); ?></td>
+                        <td><span class="status-badge status-<?php echo $row['status']; ?>"><?php echo ucfirst($row['status']); ?></span></td>
+                        <td>
+                            <a href="view_borrowing.php?id=<?php echo $row['borrowing_id']; ?>" class="btn btn-small">View</a>
+                        </td>
+                    </tr>
+                    <?php endwhile; ?>
+                </tbody>
+            </table>
+            <a href="borrowings.php" class="view-all-link">View all borrowings</a>
+        </div>
+    </div>
+    
+    <?php include 'footer.php'; ?>
+    
+    <script src="dashboard.js"></script>
+</body>
+</html>

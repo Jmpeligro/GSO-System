@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Category - PLP GSO</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <?php include 'header.php'; ?>
+    
+    <div class="container">
+        <div class="page-header">
+            <h2>Edit Category</h2>
+            <a href="categories.php" class="btn btn-secondary">Back to Categories</a>
+        </div>
+        
+        <?php if (isset($_SESSION['error'])): ?>
+            <div class="error-message"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
+        <?php endif; ?>
+        
+        <div class="form-container">
+            <form method="post" action="edit_categories.php?id=<?php echo $category_id; ?>">
+                <div class="form-group">
+                    <label for="name">Category Name *</label>
+                    <input type="text" id="name" name="name" value="<?php echo htmlspecialchars($category['name']); ?>" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description" rows="3"><?php echo htmlspecialchars($category['description']); ?></textarea>
+                </div>
+                
+                <div class="form-buttons">
+                    <button type="submit" class="btn btn-primary">Update Category</button>
+                    <a href="categories.php" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+
+        <div class="category-equipment">
+            <h3>Equipment in this Category</h3>
+            <?php if ($equipment_result->num_rows > 0): ?>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Name</th>
+                            <th>Status</th>
+                            <th>Condition</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php while ($row = $equipment_result->fetch_assoc()): ?>
+                        <tr>
+                            <td><?php echo $row['equipment_code']; ?></td>
+                            <td><?php echo $row['name']; ?></td>
+                            <td><span class="status-badge status-<?php echo $row['status']; ?>"><?php echo ucfirst($row['status']); ?></span></td>
+                            <td><?php echo ucfirst($row['condition_status']); ?></td>
+                            <td>
+                                <a href="view_equipment.php?id=<?php echo $row['equipment_id']; ?>" class="btn btn-small">View</a>
+                                <a href="edit_equipment.php?id=<?php echo $row['equipment_id']; ?>" class="btn btn-small btn-secondary">Edit</a>
+                            </td>
+                        </tr>
+                        <?php endwhile; ?>
+                    </tbody>
+                </table>
+            <?php else: ?>
+                <div class="no-results">
+                    <p>No equipment in this category.</p>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+    
+    <?php include 'footer.php'; ?>
+</body>
+</html>

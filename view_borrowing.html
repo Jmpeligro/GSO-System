@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Borrowing - PLP GSO</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <?php include 'header.php'; ?>
+    
+    <div class="container">
+        <div class="page-header">
+            <h2>Borrowing Details</h2>
+            <div class="action-buttons">
+                <?php if (isAdmin()): ?>
+                    <a href="borrowings.php" class="btn btn-secondary">Back to Borrowings</a>
+                <?php else: ?>
+                    <a href="my_borrowings.php" class="btn btn-secondary">Back to My Borrowings</a>
+                <?php endif; ?>
+            </div>
+        </div>
+        
+        <?php if (isset($_SESSION['success'])): ?>
+            <div class="success-message"><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></div>
+        <?php endif; ?>
+        
+        <?php if (isset($_SESSION['error'])): ?>
+            <div class="error-message"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
+        <?php endif; ?>
+        
+        <div class="borrowing-view">
+            <div class="section-title">Borrowing Information</div>
+            <div class="details-container">
+                <div class="info-row">
+                    <span class="label">Borrowing ID:</span>
+                    <span class="value"><?php echo $borrowing['borrowing_id']; ?></span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="label">Status:</span>
+                    <span class="value">
+                        <span class="status-badge status-<?php echo $status_class; ?>">
+                            <?php echo $is_overdue ? 'Overdue' : ucfirst($borrowing['status']); ?>
+                        </span>
+                    </span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="label">Approval Status:</span>
+                    <span class="value">
+                        <span class="status-badge status-<?php echo $borrowing['approval_status']; ?>">
+                            <?php echo ucfirst($borrowing['approval_status']); ?>
+                        </span>
+                    </span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="label">Borrow Date:</span>
+                    <span class="value"><?php echo date('F d, Y h:i A', strtotime($borrowing['borrow_date'])); ?></span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="label">Due Date:</span>
+                    <span class="value <?php echo $is_overdue ? 'text-danger' : ''; ?>">
+                        <?php echo date('F d, Y h:i A', strtotime($borrowing['due_date'])); ?>
+                        <?php if ($is_overdue): ?>
+                            <span class="overdue-warning">(Overdue by <?php echo ceil((time() - strtotime($borrowing['due_date'])) / 86400); ?> days)</span>
+                        <?php endif; ?>
+                    </span>
+                </div>
+                
+                <?php if (!empty($borrowing['return_date']) && $borrowing['status'] == 'returned'): ?>
+                <div class="info-row">
+                    <span class="label">Return Date:</span>
+                    <span class="value"><?php echo date('F d, Y h:i A', strtotime($borrowing['return_date'])); ?></span>
+                </div>
+                <?php endif; ?>
+                
+                <?php if (!empty($borrowing['notes'])): ?>
+                <div class="info-row">
+                    <span class="label">Purpose/Notes:</span>
+                    <span class="value"><?php echo $borrowing['notes']; ?></span>
+                </div>
+                <?php endif; ?>
+                
+                <?php if (!empty($borrowing['return_notes'])): ?>
+                <div class="info-row">
+                    <span class="label">Return Notes:</span>
+                    <span class="value"><?php echo $borrowing['return_notes']; ?></span>
+                </div>
+                <?php endif; ?>
+            </div>
+            
+            <div class="section-title">Equipment Information</div>
+            <div class="details-container">
+                <div class="info-row">
+                    <span class="label">Equipment Name:</span>
+                    <span class="value"><?php echo $borrowing['equipment_name']; ?></span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="label">Equipment Code:</span>
+                    <span class="value"><?php echo $borrowing['equipment_code']; ?></span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="label">Category:</span>
+                    <span class="value"><?php echo $borrowing['category_name']; ?></span>
+                </div>
+                
+                <?php if (!empty($borrowing['equipment_description'])): ?>
+                <div class="info-row">
+                    <span class="label">Description:</span>
+                    <span class="value"><?php echo $borrowing['equipment_description']; ?></span>
+                </div>
+                <?php endif; ?>
+            </div>
+            
+            <div class="section-title">User Information</div>
+            <div class="details-container">
+                <div class="info-row">
+                    <span class="label">Borrower:</span>
+                    <span class="value"><?php echo $borrowing['first_name'] . ' ' . $borrowing['last_name']; ?></span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="label">Email:</span>
+                    <span class="value"><?php echo $borrowing['email']; ?></span>
+                </div>
+                
+                <?php if (!empty($borrowing['admin_issued_first_name'])): ?>
+                <div class="info-row">
+                    <span class="label">Issued By:</span>
+                    <span class="value"><?php echo $borrowing['admin_issued_first_name'] . ' ' . $borrowing['admin_issued_last_name']; ?></span>
+                </div>
+                <?php endif; ?>
+                
+                <?php if (!empty($borrowing['admin_approved_first_name'])): ?>
+                <div class="info-row">
+                    <span class="label">Approved By:</span>
+                    <span class="value"><?php echo $borrowing['admin_approved_first_name'] . ' ' . $borrowing['admin_approved_last_name']; ?></span>
+                </div>
+                <?php endif; ?>
+                
+                <?php if (!empty($borrowing['returned_first_name'])): ?>
+                <div class="info-row">
+                    <span class="label">Return Processed By:</span>
+                    <span class="value"><?php echo $borrowing['returned_first_name'] . ' ' . $borrowing['returned_last_name']; ?></span>
+                </div>
+                <?php endif; ?>
+            </div>
+            
+            <?php if ($borrowing['status'] == 'active' && $borrowing['approval_status'] == 'approved'): ?>
+            <div class="section-title">Return Equipment</div>
+            <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"] . "?id=" . $borrowing_id); ?>" class="return-form">
+                <div class="form-group">
+                    <label for="return_notes">Return Notes (Optional)</label>
+                    <textarea id="return_notes" name="return_notes" rows="2" placeholder="Add any notes about the condition of the equipment or return process"></textarea>
+                </div>
+                <div class="form-buttons">
+                    <button type="submit" name="return" class="btn btn-primary" onclick="return confirm('Are you sure you want to return this equipment?')">Return Equipment</button>
+                </div>
+            </form>
+            <?php endif; ?>
+        </div>
+    </div>
+    
+    <?php include 'footer.php'; ?>
+</body>
+</html>

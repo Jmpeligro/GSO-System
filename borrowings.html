@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Borrowings - University GSO</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <?php include 'header.php'; ?>
+    
+    <div class="container">
+        <div class="page-header">
+            <h2>Borrowings Management</h2>
+            <div class="action-buttons">
+                <?php if (isAdmin()): ?>
+                <a href="new_borrowing.php" class="btn btn-primary">New Borrowing</a>
+                <a href="pending_request.php" class="btn btn-secondary">Pending Requests 
+                    <?php 
+                    // Get count of pending requests
+                    $pending_count = $conn->query("SELECT COUNT(*) as count FROM borrowings WHERE approval_status = 'pending'")->fetch_assoc()['count'];
+                    if ($pending_count > 0) echo "($pending_count)";
+                    ?>
+                </a>
+                <?php else: ?>
+                <a href="my_borrowings.php" class="btn btn-primary">My Borrowings</a>
+                <?php endif; ?>
+            </div>
+        </div>
+        
+        <?php if (isset($_SESSION['success'])): ?>
+            <div class="success-message"><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></div>
+        <?php endif; ?>
+        
+        <?php if (isset($_SESSION['error'])): ?>
+            <div class="error-message"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
+        <?php endif; ?>
+        
+        <div class="filter-section">
+            <form method="get" action="borrowings.php" class="filter-form">
+                <div class="form-group">
+                    <label for="status">Status</label>
+                    <select id="status" name="status">
+                        <option value="">All Statuses</option>
+                        <option value="pending" <?php echo $status_filter == 'pending' ? 'selected' : ''; ?>>Pending</option>
+                        <option value="active" <?php echo $status_filter == 'active' ? 'selected' : ''; ?>>Active</option>
+                        <option value="returned" <?php echo $status_filter == 'returned' ? 'selected' : ''; ?>>Returned</option>
+                        <option value="overdue" <?php echo $status_filter == 'overdue' ? 'selected' : ''; ?>>Overdue</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="approval_status">Approval Status</label>
+                    <select id="approval_status" name="approval_status">
+                        <option value="">All</option>
+                        <option value="pending" <?php echo $approval_filter == 'pending' ? 'selected' : ''; ?>>Pending</option>
+                        <option value="approved" <?php echo $approval_filter == 'approved' ? 'selected' : ''; ?>>Approved</option>
+                        <option value="denied" <?php echo $approval_filter == 'denied' ? 'selected' : ''; ?>>Denied</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="user_id">Borrower</label>
+                    <select id="user_id" name="user_id">
+                        <option value="0">All Borrowers</option>
+                        <?php while ($user = $users_result->fetch_assoc()): ?>
+                        <option value="<?php echo $user['user_id']; ?>" <?php echo $user_filter == $user['user_id'] ? 'selected' : ''; ?>>
+                            <?php echo $user['first_name'] . ' ' . $user['last_name']; ?>
+                        </option>
+                        <?php endwhile; ?>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="equipment_id">Equipment</label>
+                    <select id="equipment_id" name="equipment_id">
+                        <option value="0">All Equipment</option>
+                        <?php while ($equip = $equipment_result->fetch_assoc()): ?>
+                        <option value="<?php echo $equip['equipment_id']; ?>" <?php echo $equipment_filter == $equip['equipment_id'] ? 'selected' : ''; ?>>
+                            <?php echo $equip['name']; ?>
+                        </option>
+                        <?php endwhile; ?>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="search">Search</label>
+                    <input type="text" id="search" name="search" value="<?php echo $search_query; ?>" placeholder="Search equipment name, borrower...">
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label for="date_from">From Date</label>
+                        <input type="date" id="date_from" name="date_from" value="<?php echo $date_from; ?>">
+                    </div>
+                    
+                    <div class="form-group half">
+                        <label for="date_to">To Date</label>
+                        <input type="date" id="date_to" name="date_to" value="<?php echo $date_to; ?>">
+                    </div>
+                </div>
+                
+                <div class="form-buttons">
+                    <button type="submit" class="btn btn-primary">Apply Filters</button>
+                    <a href="borrowings.php" class="btn btn-secondary">Clear Filters</a>
+                </div>
+            </form>
+        </div>
+        
+        <div class="borrowings-list">
+            <?php if ($result->num_rows > 0): ?>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Equipment</th>
+                            <th>Code</th>
+                            <th>Borrower</th>
+                            <th>Borrow Date</th>
+                            <th>Due Date</th>
+                            <th>Status</th>
+                            <th>Approval</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php 
+                        while ($row = $result->fetch_assoc()): 
+                            $is_overdue = ($row['status'] == 'active' && strtotime($row['due_date']) < time());
+                            $status_class = $is_overdue ? 'overdue' : $row['status'];
+                        ?>
+                        <tr>
+                            <td><?php echo $row['borrowing_id']; ?></td>
+                            <td><?php echo $row['equipment_name']; ?></td>
+                            <td><?php echo $row['equipment_code']; ?></td>
+                            <td><?php echo $row['first_name'] . ' ' . $row['last_name']; ?></td>
+                            <td><?php echo date('M d, Y', strtotime($row['borrow_date'])); ?></td>
+                            <td><?php echo date('M d, Y', strtotime($row['due_date'])); ?></td>
+                            <td>
+                                <span class="status-badge status-<?php echo $status_class; ?>">
+                                    <?php echo $is_overdue ? 'Overdue' : ucfirst($row['status']); ?>
+                                </span>
+                            </td>
+                            <td>
+                                <span class="status-badge status-<?php echo $row['approval_status']; ?>">
+                                    <?php echo ucfirst($row['approval_status']); ?>
+                                </span>
+                            </td>
+                            <td class="actions">
+                                <a href="view_borrowing.php?id=<?php echo $row['borrowing_id']; ?>" class="btn btn-small">View</a>
+                                
+                                <?php if ($row['status'] == 'active' && $row['approval_status'] == 'approved'): ?>
+                                <a href="borrowings.php?return=<?php echo $row['borrowing_id']; ?>" 
+                                   class="btn btn-small btn-primary"
+                                   onclick="return confirm('Are you sure you want to mark this equipment as returned?')">Return</a>
+                                <?php endif; ?>
+                                
+                                <?php if (isAdmin() && $row['approval_status'] == 'pending'): ?>
+                                <a href="pending_requests.php" class="btn btn-small btn-secondary">Review</a>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                        <?php endwhile; ?>
+                    </tbody>
+                </table>
+            <?php else: ?>
+                <div class="no-results">
+                    <p>No borrowing records found matching your criteria.</p>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+    
+    <?php include 'footer.php'; ?>
+</body>
+</html>

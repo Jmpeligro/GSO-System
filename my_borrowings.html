@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Borrowings - PLP GSO</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <?php include 'header.php'; ?>
+    
+    <div class="container">
+        <h2>My Borrowings</h2>
+        
+        <?php if (isset($_SESSION['success'])): ?>
+            <div class="success-message"><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></div>
+        <?php endif; ?>
+        
+        <?php if (isset($_SESSION['error'])): ?>
+            <div class="error-message"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
+        <?php endif; ?>
+        
+        <div class="borrowings-list">
+            <?php if ($result->num_rows > 0): ?>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Equipment</th>
+                            <th>Code</th>
+                            <th>Borrow Date</th>
+                            <th>Due Date</th>
+                            <th>Status</th>
+                            <th>Approval Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php while ($row = $result->fetch_assoc()): 
+                            $is_overdue = ($row['status'] == 'active' && strtotime($row['due_date']) < time());
+                            $status_class = $is_overdue ? 'overdue' : $row['status'];
+                        ?>
+                        <tr>
+                            <td><?php echo $row['equipment_name']; ?></td>
+                            <td><?php echo $row['equipment_code']; ?></td>
+                            <td><?php echo date('M d, Y', strtotime($row['borrow_date'])); ?></td>
+                            <td><?php echo date('M d, Y', strtotime($row['due_date'])); ?></td>
+                            <td>
+                                <span class="status-badge status-<?php echo $status_class; ?>">
+                                    <?php echo $is_overdue ? 'Overdue' : ucfirst($row['status']); ?>
+                                </span>
+                            </td>
+                            <td>
+                                <span class="status-badge status-<?php echo $row['approval_status']; ?>">
+                                    <?php echo ucfirst($row['approval_status']); ?>
+                                </span>
+                            </td>
+                            <td class="actions">
+                                <a href="view_borrowing.php?id=<?php echo $row['borrowing_id']; ?>" class="btn btn-small">View</a>
+                                
+                                <?php if ($row['approval_status'] == 'pending'): ?>
+                                <a href="my_borrowings.php?cancel=<?php echo $row['borrowing_id']; ?>" 
+                                   class="btn btn-small btn-danger"
+                                   onclick="return confirm('Are you sure you want to cancel this request?')">Cancel</a>
+                                <?php endif; ?>
+                                
+                                <?php if ($row['status'] == 'active' && $row['approval_status'] == 'approved'): ?>
+                                <a href="view_borrowing.php?id=<?php echo $row['borrowing_id']; ?>&return=true" 
+                                   class="btn btn-small btn-primary"
+                                   onclick="return confirm('Are you sure you want to mark this equipment as returned?')">Return</a>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                        <?php endwhile; ?>
+                    </tbody>
+                </table>
+            <?php else: ?>
+                <div class="no-results">
+                    <p>You have no borrowing records at this time.</p>
+                    <a href="equipment.php" class="btn btn-primary">Browse Equipment</a>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+    
+    <?php include 'footer.php'; ?>
+</body>
+</html>

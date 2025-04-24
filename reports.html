@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - PLP GSO Management</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+</head>
+<body>
+    <header>
+        <?php include 'header.php'; ?>
+    </header>
+    
+    <div class="container">
+        <h2>Reports</h2>
+        
+        <div class="filter-section">
+            <div class="filter-form">
+                <div class="form-group">
+                    <label for="report_type">Report Type:</label>
+                    <select id="report_type" name="report_type">
+                        <option value="equipment_status">Equipment Status</option>
+                        <option value="borrowing_activity">Borrowing Activity</option>
+                        <option value="overdue_items">Overdue Items</option>
+                        <option value="popular_equipment">Popular Equipment</option>
+                        <option value="user_activity">User Activity</option>
+                    </select>
+                </div>
+
+                <div class="form-group date-filter">
+                    <label for="start_date">Start Date:</label>
+                    <input type="date" id="start_date" name="start_date">
+                </div>
+
+                <div class="form-group date-filter">
+                    <label for="end_date">End Date:</label>
+                    <input type="date" id="end_date" name="end_date">
+                </div>
+
+                <div class="form-group category-filter">
+                    <label for="category_id">Category:</label>
+                    <select id="category_id" name="category_id">
+                        <option value="0">All Categories</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <button type="button" id="generate-report" class="btn btn-primary">Generate Report</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" id="report-results">
+            <div class="card-header">
+                <h3 id="report-title">Report Results</h3>
+            </div>
+            <div class="card-body">
+                <div id="chart-container" class="chart-box"></div>
+                <div id="table-container"></div>
+            </div>
+            <div class="card-footer">
+                <button id="printReport" class="btn btn-secondary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                        <rect x="6" y="14" width="12" height="8"></rect>
+                    </svg>
+                    Print Report
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <?php include 'footer.php'; ?>
+    </footer>
+    <script src="reports.js"></script>
+</body>
+</html>
